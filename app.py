@@ -169,4 +169,4 @@ if __name__ == '__main__':
     app.config['MAX_CONTENT_LENGTH'] = 300 * 1024 * 1024
     # app.run()
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-    app.run(debug=True, host='0.0.0.0')
+    app.run(debug=False, host='0.0.0.0')
