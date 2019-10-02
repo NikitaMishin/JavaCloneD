@@ -1,0 +1,118 @@
+
+.sidenav {
+    height: 100%; /* 100% Full-height */
+    width: 0; /* 0 width - change this with JavaScript */
+    position: fixed; /* Stay in place */
+    z-index: 99991; /* Stay on top */
+    top: 0; /* Stay at the top */
+    left: 0;
+    background-color: #f7f7f7;
+    overflow-x: hidden; /* Disable horizontal scroll */
+    transition: 0.5s; /* 0.5 second transition effect to slide in the sidenav */
+     outline: 3px solid #dfdfdf;
+}
+
+.sidenav ul li  a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: smaller;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+.sidenav  ul li a:hover {
+    font-size: small;
+    transition: 0.5s;
+}
+
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+.sidenav {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: smaller;
+}
+
+.closebtn {
+    margin: 10px;
+    float: right;
+    position: sticky;
+    top: 0;
+    font-size: 36px;
+    cursor: pointer;
+    display: inline-block;
+    z-index: 100000;
+}
+.closebtn:hover {
+    font-size: 45px;
+    transition: 0.3s;
+}
+
+.roww {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.column {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 100%;
+    flex: 1;
+    position: relative;
+}
+
+
+.overflow-y-scroll {
+    overflow-y: scroll;
+}
+
+.overflow-y-hidden {
+    overflow: hidden;
+}
+
+.wrap-break-line {
+    white-space: pre-line;
+}
+
+.carousel-item {
+    white-space: pre-line;
+    padding: 10px;
+}
+
+.carousel-control-prev-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23f00' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E");
+}
+
+.carousel-control-next-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23f00' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E");
+}
+
+
+.archetype_part {
+    color: #000000;
+}
+
+.variation_part1 {
+    color: #ff006f;
+}
+
+.variation_part2 {
+    color: #ff9c29;
+}
+
+.not_clone_part {
+    color: black;
+}
+
+/*.removed_part*/
+/*.added_part*/
+
+i {
+    font-size: large;
+    font-family: Arial, serif;
+}

@@ -1,0 +1,285 @@
+<!doctype html>
+
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/lib/bootstrap/bootstrap.min.css')}}">
+    <!--<link rel="stylesheet" href="{{ url_for('static',filename='css/lib/mitch_tree/d3-mitch-tree.min.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/lib/mitch_tree/d3-mitch-tree-theme-default.min.css')}}"> -->
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/lib/context_menu/jquery.contextMenu.min.css')}}">
+
+    <link href="{{ url_for('static',filename='css/lib/fontawesome-free-5.10.1-web/css/all.css')}}" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/lib/fancytree/ui.fancytree.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/viz_page/main_frame.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/viz_page/d3-graph.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/viz_page/splitters.css')}}">
+
+
+</head>
+
+<script src="{{ url_for('static',filename='js/lib/jquery/jquery-3.4.1.min.js')}}"></script>
+<script src="{{ url_for('static',filename='js/lib/popper/popper.js')}}"></script>
+<script src="{{ url_for('static',filename='js/lib//bootstrap/bootstrap.min.js')}}"></script>
+
+<script src="{{ url_for('static',filename='js/lib/fancytree/jquery.fancytree-all-deps.min.js')}}"></script>
+
+<script src="https://d3js.org/d3.v4.min.js" type="text/javascript"></script>
+<script src="https://d3js.org/d3-selection-multi.v1.js"></script>
+<script src="{{ url_for('static',filename='js/lib/split/split.min.js')}}"></script>
+<script src="{{ url_for('static',filename='js/lib/context_menu/jquery.contextMenu.js')}}"></script>
+
+
+<script src="{{ url_for('static',filename='js/viz_page/loaded.js')}}"></script>
+<script src="{{ url_for('static',filename='js/viz_page/customMenu.js')}}"></script>
+<script src="{{ url_for('static',filename='js/viz_page/navbar.js')}}"></script>
+<script src="{{ url_for('static',filename='js/viz_page/frontend-callers.js')}}"></script>
+<script src="{{ url_for('static',filename='js/viz_page/d3-graph.js')}}"></script>
+<script src="{{ url_for('static',filename='js/viz_page/fancytree-tree.js')}}"></script>
+<script src="{{ url_for('static',filename='js/viz_page/emitters.js')}}"></script>
+<script src="{{ url_for('static',filename='js/viz_page/display.js')}}"></script>
+<script src="{{ url_for('static',filename='js/viz_page/fancy-tree-action.js')}}"></script>
+
+<style>
+
+
+</style>
+<body>
+
+<div class="container-fluid">
+    <!-- Top navigation -->
+    <nav class="navbar sticky-top navbar-light bg-light">
+
+        <div class="btn btn-outline-success my-2 my-sm-0" onclick="openNav()" data-toggle="tooltip" data-placement="top" title="Show all groups">Groups</div>
+
+        <div style="margin-left: 20px;display: flex;margin-right: auto;flex-wrap: wrap">
+            <div class="form-check-inline">
+                <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="highlightmode" value="0" checked> No highlighting
+                </label>
+            </div>
+            <div class="form-check-inline" style="display: none">
+                <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="highlightmode" value="1"> show with diff
+                </label>
+            </div>
+
+            <div class="form-check-inline">
+                <label class="form-check-label">
+                    <input type="radio" class="form-check-input" name="highlightmode" value="2"> show with variation
+                </label>
+            </div>
+
+        </div>
+
+        <div style="display: flex;flex: auto;/* margin: auto; *//* width: 100%; *//* align-content: center; *//* align-self: center; *//* text-align: center; */">
+            <h6 id="group_header" style="margin: auto;">Group name</h6>
+        </div>
+
+        <!-- do not need for current version -->
+        <form class="form-inline my-2 my-lg-0" style="display: none">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+
+    </nav>
+
+    <!-- leftsidenavigation -->
+    <div id="mySidenav" class="sidenav" style="resize: horizontal;overflow: auto;">
+        <span class="closebtn" onclick="closeNav()">&times;</span>
+        <ul>
+            {% for group in groups %}
+                <li>
+                    <a onclick="createNewMarkup({{ group['id'] }}, '{{ group["name"] }}')">
+                        {{ group['name'] }}
+                    </a>
+                </li>
+
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="row no-gutters">
+        <!-- Tree control-->
+        <div id="display" class="col overflow-y-scroll" style="width: 50%">
+
+            <!-- Default mode when one selected -->
+            <div id="accordion1" style="visibility: visible">
+                <div class="card">
+                    <div class="card-header" id="headingCurrentNodeMode1">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse"
+                                    data-target="#currentNodeMode1"
+                                    aria-expanded="false" aria-controls="currentNodeMode1">
+                                Current node
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="currentNodeMode1" class="collapse" aria-labelledby="headingCurrentNodeMode1">
+                        <!--data-parent="#accordion1"-->
+                        <div id="mode_1_selected_node_node" class="card-body wrap-break-line">
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" id="headingParentMode1">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseParentMode1"
+                                    aria-expanded="true"
+                                    aria-controls="collapseParentMode1">
+                                Parents
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseParentMode1" class="collapse show" aria-labelledby="headingParentMode1">
+                        <!--data-parent="#accordion1"-->
+                        <!--data-parent="#accordion1"-->
+                        <div class="card-body">
+                            <div id="carouselParentMode1" class="carousel slide" data-keyboard="true"
+                                 data-interval="false" data-ride="carousel">
+                                <div id="mode_1_selected_node_parents" class="carousel-inner">
+                                    <div class="carousel-item active">
+
+                                    </div>
+                                    <div class="carousel-item">
+
+
+                                    </div>
+                                    <div class="carousel-item">
+
+                                    </div>
+                                </div>
+
+
+                                <a class="carousel-control-prev" style="width: 2.5%;margin-left: -1.5%"
+                                   href="#carouselParentMode1" role="button" data-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="carousel-control-next" style="width: 2.5%;margin-right: -1.5%"
+                                   href="#carouselParentMode1" role="button"
+                                   data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header" id="headingChildrenMode1">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link collapsed" data-toggle="collapse"
+                                    data-target="#collapseChildrenMode1"
+                                    aria-expanded="false" aria-controls="collapseChildrenMode1">
+                                Childrens
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapseChildrenMode1" class="collapse" aria-labelledby="headingChildrenMode1">
+                        <!--data-parent="#accordion1"-->
+                        <div class="card-body">
+                            <div id="carouselChildMode1" class="carousel slide" data-keyboard="true"
+                                 data-interval="false" data-ride="carousel">
+                                <div id="mode_1_selected_node_childrens" class="carousel-inner">
+                                    <div class="carousel-item active">
+
+                                    </div>
+                                    <div class="carousel-item">
+
+
+                                    </div>
+                                    <div class="carousel-item">
+                                    </div>
+                                </div>
+
+
+                                <a class="carousel-control-prev" style="width: 2.5%;margin-left: -1.5%"
+                                   href="#carouselChildMode1" role="button" data-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Previous</span>
+                                </a>
+                                <a class="carousel-control-next" style="width: 2.5%;margin-right: -1.5%"
+                                   href="#carouselChildMode1" role="button"
+                                   data-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="sr-only">Next</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+        <div id="one" class="col overflow-y-scroll">
+            <div id="tree">
+            </div>
+        </div>
+
+        <div id="visualisation" class="col overflow-y-hidden svg-container">
+            <!--svg should be preserveAspectRatio="xMinYMin meet" -->
+            <svg id="graph" class="svg-content" preserveAspectRatio="none"></svg>
+        </div>
+
+
+    </div>
+
+
+</div>
+</body>
+
+
+<script>
+
+    let splitobj = Split(["#display", "#one", "#visualisation"], {
+        elementStyle: function (dimension, size, gutterSize) {
+            $(window).trigger('resize'); // Optional
+            return {'flex-basis': 'calc(' + size + '% - ' + gutterSize + 'px)'}
+        },
+        gutterStyle: function (dimension, gutterSize) {
+            return {'flex-basis': gutterSize + 'px'}
+        },
+        sizes: [33, 33, 33],
+        minSize: 50,
+        gutterSize: 6,
+        cursor: 'col-resize'
+    });
+
+    function correct_sizes() {
+        let wh = window.innerHeight;
+        let navbarh = $('nav').outerHeight(true);
+        let newWh = (wh - navbarh) + 'px';
+        $('#tree').css('height', newWh);
+        $('#visualisation').css('height', newWh);
+        $('#display').css('height', newWh);
+
+    }
+
+    $(window).resize(correct_sizes);
+
+    $(document).ready(function () {
+        correct_sizes();
+    });
+
+
+    const sideNavWidth = '350px';
+
+    function openNav() {
+        document.getElementById("mySidenav").style.width = sideNavWidth;
+    }
+
+    function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+    }
+
+
+</script>
+</html>

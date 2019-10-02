@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ff</title>
+</head>
+<style>
+    p {
+        text-indent: 50px;
+        text-align: justify;
+        letter-spacing: 3px;
+    }
+
+    h1 {
+        text-align: center;
+        text-transform: uppercase;
+
+    }
+
+</style>
+<body>
+<!-- bootstrap 4.x is supported. You can also use the bootstrap css 3.3.x versions -->
+<link rel="stylesheet" href="static/css/lib/bootstrap/bootstrap.min.css">
+
+<link href='static/css/lib/fileinput/fileinput.css' media="all" rel="stylesheet" type="text/css"/>
+<!-- if using RTL (Right-To-Left) orientation, load the RTL CSS file after fileinput.css by uncommenting below -->
+<!-- link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.0.6/css/fileinput-rtl.min.css" media="all" rel="stylesheet" type="text/css" /-->
+<script src="static/js/lib/jquery/jquery-3.4.1.min.js"></script>
+<!-- piexif.min.js is needed for auto orienting image files OR when restoring exif data in resized images and when you
+    wish to resize images before upload. This must be loaded before fileinput.min.js -->
+<script src="static/js/lib/fileinput/plugins/piexif.min.js" type="text/javascript"></script>
+<!-- sortable.min.js is only needed if you wish to sort / rearrange files in initial preview.
+    This must be loaded before fileinput.min.js -->
+<script src="static/js/lib/fileinput/plugins/sortable.min.js" type="text/javascript"></script>
+<!-- purify.min.js is only needed if you wish to purify HTML content in your preview for
+    HTML files. This must be loaded before fileinput.min.js -->
+<script src="static/js/lib/fileinput/plugins/purify.min.js" type="text/javascript"></script>
+<!-- popper.min.js below is needed if you use bootstrap 4.x. You can also use the bootstrap js
+   3.3.x versions without popper.min.js. -->
+<script src="static/js/lib/popper/popper.js"></script>
+<!-- bootstrap.min.js below is needed if you wish to zoom and preview file content in a detail modal
+    dialog. bootstrap 4.x is supported. You can also use the bootstrap js 3.3.x versions. -->
+<script src="static/js/lib/bootstrap/bootstrap.min.js" type="text/javascript"></script>
+<!-- the main fileinput plugin file -->
+<script src="static/js/lib/fileinput/fileinput.min.js"></script>
+
+<!-- optionally if you need a theme like font awesome theme you can include it as mentioned below
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.0.6/themes/fa/theme.js"></script>
+-->
+
+<div style="padding: 8px;margin: 25px
+">
+    <h1>JavaCloneD</h1>
+    <p>The Comment Clone Detector "JavaCloneD" finds and visualizes clones that contain in Javadoc comments.
+        The tool finds exact and fuzzy clones. Clones split onto the groups and each group forms an acyclic-oriented
+        graph.
+        The relation between nodes (edge) may be interpreted as follows:
+        for each node that has children (i.e ancestors) edge shows that associated with that node Javadoc comment was
+        partially copy-pasted and may be edited from children.</p>
+        <p>
+        Further, each such group may be displayed as a naturally oriented graph and for each node in the graph we can
+        build derivation tree.</p>
+    <br>
+    <p>
+        To start analysis select folder with java project that you want to analyze
+    </p>
+
+</div>
+<div class="file-loading">
+    <input id="input-folder-2" name="files" type="file" multiple webkitdirectory>
+</div>
+
+<div id="errorBlock" class="help-block"></div>
+<script>
+    $(document).ready(function () {
+        $("#input-folder-2").fileinput({
+            browseLabel: 'Select Folder with files to analyze',
+            uploadLabel: 'Analyze',
+            uploadTitle: 'Upload files to server and start analysis',
+            allowedPreviewTypes: null, // set to empty, null or false to disable preview for all types
+            showPreview: false,
+            uploadUrl: "/analyze_files",
+            uploadAsync: false,
+            timeout: 60000,
+            elErrorContainer: "#errorBlock"
+            //multiple: true
+        }).on(
+            'filebatchuploadsuccess', function (event, data) {
+                window.location.href = data.response.url;
+            }
+        );
+    });
+
+</script>
+
+
+</body>
+</html>
