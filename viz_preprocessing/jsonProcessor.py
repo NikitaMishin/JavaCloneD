@@ -64,4 +64,8 @@ class JsonProcessor(AbstractJsonProcessor):
             components = [directed_graph.subgraph(c) for c in
                           sorted(networkx.connected_components(networkx.Graph(directed_graph)),
                                  key=len, reverse=True)]
+            # uncomment to see debug if all component is asyclic
+            # for comp in components:
+            #     if not networkx.is_directed_acyclic_graph(comp):
+            #         print('Component is circled')
             return directed_graph, components

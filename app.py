@@ -15,9 +15,13 @@ session_page_data = 'data.json'
 output_json_name = 'digraph.json'
 
 
-@app.route('/')
-def hello_world():
-    return
+def error_response(err, session_id):
+    return {
+        'status': 500,
+        'error': '<span>{0}</span>'.format(err),
+        'errorkeys': [],
+        'id': session_id,
+    }
 
 
 @app.route('/home')
@@ -26,8 +30,6 @@ def home():
     Display user input with directory chooser to analyze
     :return: Html page
     """
-    # return render_template('main_frame_html.html')
-    # return app.send_static_file('static_pages/webus.html')
     return app.send_static_file('static_pages/home.html')
 
 
@@ -60,6 +62,33 @@ def serve(session_id):
         abort(404, 'No analysis is launch for specified session')
 
 
+def _atomic_session_inc():
+    global lock, current_session_id
+    session_id = 0
+    with lock:
+        session_id = current_session_id
+        current_session_id += 1
+    return session_id
+
+
+def _common(session_id):
+    is_succeed, err = _analyze(str(session_id))
+
+    if not is_succeed:
+        return jsonify(error_response(err, session_id))
+
+    err_msg = generate_self_contained_viz((str(session_id)))
+
+    if err_msg is not None:
+        return jsonify(error_response(err_msg, session_id))
+
+    return jsonify({
+        'url': '/analysis_result/' + str(session_id),
+        'status': 200,
+        'id': session_id
+    })
+
+
 @app.route('/analyze_files', methods=['POST'])
 def analyze_files():
     """
@@ -67,12 +96,7 @@ def analyze_files():
     :return:
     """
     import shutil
-    global lock, current_session_id
-    session_id = 0
-    with lock:
-        session_id = current_session_id
-        current_session_id += 1
-
+    session_id = _atomic_session_inc()
     uploaded_files = request.files.getlist('files')
     session_dir = os.path.join(upload_folder, str(session_id))
     shutil.rmtree(session_dir, ignore_errors=True)
@@ -82,40 +106,47 @@ def analyze_files():
         dir_for_file = os.path.join(upload_folder, str(session_id), str(index))  # for removal of collision problems
         os.makedirs(dir_for_file, exist_ok=True)
         file.save(os.path.join(dir_for_file, file_name))
-
-    is_succeded, err = analyze(str(session_id))
-
-    if not is_succeded:
-        return {
-            'status': 500,
-            'error': '<span>{0}</span>'.format(err),
-            'errorkeys': [],
-            'id': session_id,
-        }
-
-    err_msg = generate_self_contained_viz((str(session_id)))
-
-    if err_msg is not None:
-        return {
-            {
-                'status': 500,
-                'error': '<span>{0}</span>'.format(err_msg),
-                'errorkeys': [],
-                'id': session_id,
-            }
-
-        }
-
-    response = {
-        'url': '/analysis_result/' + str(session_id),
-        'status': 200,
-        'id': session_id
-    }
-
-    return jsonify(response)
+    return _common(session_id)
 
 
-def analyze(session_id: str) -> ():
+@app.route('/analyze_from_zip', methods=['POST'])
+def analyze_zip():
+    import zipfile, shutil
+
+    session_id = str(_atomic_session_inc())
+    session_dir = os.path.join(upload_folder, session_id)
+    shutil.rmtree(session_dir, ignore_errors=True)
+    os.makedirs(session_dir, exist_ok=True)
+
+    file = request.files['ziparchive']
+    filename = file.filename
+
+    file.save(os.path.join(session_dir, filename))
+
+    with zipfile.ZipFile(os.path.join(session_dir, filename), 'r') as zip_ref:
+        zip_ref.extractall(os.path.join(upload_folder, session_id))
+    os.remove(os.path.join(session_dir, filename))
+
+    return _common(session_id)
+
+
+@app.route('/analyze_from_github_url', methods=['POST'])
+def analyze_github_link():
+    import wget, zipfile, shutil
+    session_id = str(_atomic_session_inc())
+    session_dir = os.path.join(upload_folder, session_id)
+    shutil.rmtree(session_dir, ignore_errors=True)
+    os.makedirs(session_dir, exist_ok=True)
+
+    github_url = request.get_json()['url']
+    filename = wget.download(github_url, out=session_dir)
+    with zipfile.ZipFile(filename, 'r') as zip_ref:
+        zip_ref.extractall(session_dir)
+    os.remove(filename)
+    return _common(session_id)
+
+
+def _analyze(session_id: str) -> ():
     import subprocess, calle_java_command
 
     path_to_analyze = os.path.join(os.path.dirname(app.instance_path), upload_folder, session_id)

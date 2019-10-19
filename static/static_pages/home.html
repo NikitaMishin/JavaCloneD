@@ -14,7 +14,11 @@
     h1 {
         text-align: center;
         text-transform: uppercase;
+    }
 
+    .block {
+        padding: 8px;
+        margin: 25px;
     }
 
 </style>
@@ -48,8 +52,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-fileinput/5.0.6/themes/fa/theme.js"></script>
 -->
 
-<div style="padding: 8px;margin: 25px
-">
+<div class="block">
     <h1>JavaCloneD</h1>
     <p>The Comment Clone Detector "JavaCloneD" finds and visualizes clones that contain in Javadoc comments.
         The tool finds exact and fuzzy clones. Clones split onto the groups and each group forms an acyclic-oriented
@@ -57,7 +60,7 @@
         The relation between nodes (edge) may be interpreted as follows:
         for each node that has children (i.e ancestors) edge shows that associated with that node Javadoc comment was
         partially copy-pasted and may be edited from children.</p>
-        <p>
+    <p>
         Further, each such group may be displayed as a naturally oriented graph and for each node in the graph we can
         build derivation tree.</p>
     <br>
@@ -69,7 +72,36 @@
 <div class="file-loading">
     <input id="input-folder-2" name="files" type="file" multiple webkitdirectory>
 </div>
+make notion about real amount of java files
+<div class="block">
+    <form method="post" action="">
+        <p>OR
+            <br>
 
+            provide url to github repository</p>
+        Link to github repository: <input type="url" id="ajax_post_url" name="link"
+                                          placeholder="https://github.com/... /...zip"
+                                          pattern="https://github.com/.+.zip"
+                                          title="Only github links to zip are allowed"/>
+        <input id="btn_url" class="btn btn-primary" type="submit" value="Send location of zip to analyze"/>
+          <div id="spin" class="spinner-border" role="status" style="visibility: hidden">
+  <span class="sr-only">Loading...</span>
+</div>
+    </form>
+    <div id="error_url"></div>
+
+
+    <p>OR
+        <br>
+
+        select zip archive with source code</p>
+
+    <div class="file-loading">
+        <input id="input-folder-3" name="ziparchive" type="file" accept=".zip">
+    </div>
+
+
+</div>
 <div id="errorBlock" class="help-block"></div>
 <script>
     $(document).ready(function () {
@@ -89,7 +121,58 @@
                 window.location.href = data.response.url;
             }
         );
+
+        $("#input-folder-3").fileinput({
+            browseLabel: 'Select archive',
+            uploadLabel: 'Analyze',
+            uploadTitle: 'Upload archive with java project to server and start analysis',
+            allowedPreviewTypes: null, // set to empty, null or false to disable preview for all types
+            showPreview: false,
+            uploadUrl: "/analyze_from_zip",
+            uploadAsync: false,
+            timeout: 60000,
+            elErrorContainer: "#errorBlock"
+            //multiple: true
+        }).on(
+            'filebatchuploadsuccess', function (event, data) {
+                window.location.href = data.response.url;
+            }
+        );
+
+        $("#btn_url").click(function () {
+
+            $("#btn_url").attr("disabled", true);
+            $('#spin').css('visibility','visible');
+
+            $.ajax({
+                url: 'analyze_from_github_url',
+                type: "post",
+                dataType: "json",
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    url: document.getElementById("ajax_post_url").value
+                }),
+                success: function (response) {
+                    $('#spin').css('visibility','hidden');
+                    $("#btn_url").attr("disabled", false);
+                    window.location.href = response.url;
+                },
+                error: function (response) {
+                    console.log(response);
+                    $('#spin').css('visibility','hidden');
+                    $("#btn_url").attr("disabled", false);
+                    $('#errorBlock').html(response.error);
+                    $('#errorBlock').show();
+                }
+            });
+
+            return false;
+
+        })
+
+
     });
+
 
 </script>
 
