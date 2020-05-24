@@ -148,11 +148,18 @@
 </div>
 <div class="approximateMatching">
     <h1>Approximate matching</h1>
-      <div class="block">Choose type of approximate matching algorithm:
+    <div class="block">Choose type of approximate matching algorithm:
         <input type="radio" id="algoPattern0" name="algoPattern" value="0" checked>
         <label for="algoPattern0"> ThresholdAMatch</label>
         <input type="radio" id="algoPattern1" name="algoPattern" value="1">
-        <label for="algoPattern1"> MaximumThresholdAMatch </label><br>
+        <label for="algoPattern1"> MaximumThresholdCutAMatch </label>
+        <input type="radio" id="algoPattern2" name="algoPattern" value="2">
+        <label for="algoPattern2"> InteractiveDuplicate(Luciv) </label>
+        <input type="radio" id="algoPattern3" name="algoPattern" value="3">
+        <label for="algoPattern3"> InteractiveDuplicate(via window-substring smart) </label>
+        <input type="radio" id="algoPattern4" name="algoPattern" value="4">
+        <label for="algoPattern4"> InteractiveDuplicate(via window-substring naive) </label><br>
+        
     </div>
 
 
