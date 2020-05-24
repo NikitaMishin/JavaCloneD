@@ -69,9 +69,9 @@ function setupMarkupForSelectedNode(parents, childrens, current) {
         $(selectorCarouselDiv + ' .carousel-item').remove();
         data.forEach((item, index) => {
             if (index === 0) {
-                $(selectorCarouselDiv).append(spac(item.backendId, item, true,true));
+                $(selectorCarouselDiv).append(spac(item.backendId, item, true,false));
             } else {
-                $(selectorCarouselDiv).append(spac(item.backendId, item, false,true));
+                $(selectorCarouselDiv).append(spac(item.backendId, item, false,false));
             }
         });
     }
