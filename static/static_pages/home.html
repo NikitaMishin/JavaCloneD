@@ -21,6 +21,10 @@
         margin: 25px;
     }
 
+    .formfield * {
+        vertical-align: middle;
+    }
+
 </style>
 <body>
 <!-- bootstrap 4.x is supported. You can also use the bootstrap css 3.3.x versions -->
@@ -63,46 +67,108 @@
     <p>
         Further, each such group may be displayed as a naturally oriented graph and for each node in the graph we can
         build derivation tree.</p>
-    <br>
     <p>
-        To start analysis select folder with java project that you want to analyze
+        Or you may find all clones of specified pattern via several approximate matching algorithms
     </p>
+    <br>
+
+    <div>
+        Choose scoring scheme:
+        <label>
+            Match score: <input type="number" name="match" value="1" min="1" max="10" required>
+            Mismatch score: <input type="number" name="mismatch" value="-1" min="-10" max="0" required>
+            Gap score:<input type="number" name="gap" value="-1" min="-1" max="0" required>
+        </label>
+        <br>
+        Choose threshold percent for matchings for specified scoring scheme
+        <label>
+            Percent: <input type="number" name="percent" value="0.65" min="0.3" max="1" required>
+        </label>
+        <br>
+        Choose metric function:
+        <input type="radio" id="smithwaterman" name="func" value="Bounded-length Smith-Waterman">
+        <label for="smithwaterman"> Bounded-length Smith-Waterman</label>
+        <input type="radio" id="stringsubstring" name="func" value="String-Substring" checked>
+        <label for="stringsubstring"> String-Substring </label><br>
+    </div>
+    Choose type of query:
+    <input type="radio" id="approximateMatching" name="query" value="approximateMatching" checked>
+    <label for="approximateMatching"> Approximate matching</label>
+    <input type="radio" id="groupDuplicate" name="query" value="groupDuplicate">
+    <label for="groupDuplicate"> Group detection </label><br>
 
 </div>
-<div class="file-loading">
-    <input id="input-folder-2" name="files" type="file" multiple webkitdirectory>
-</div>
-make notion about real amount of java files
-<div class="block">
-    <form method="post" action="">
+
+<div class="groupDuplicate" style="display: none">
+    <h1>Group duplicate detection</h1>
+    <div class="block">Choose type of grouping algorithm:
+        <input type="radio" id="algo1" name="algo" value="mcl" checked>
+        <label for="algo1"> Markov clustering with minimum spanning Tree</label>
+        <input type="radio" id="algo2" name="algo" value="tarjan">
+        <label for="algo2"> Branching (orient tree) </label><br>
+    </div>
+
+    <div class="file-loading">
+        <input id="input-folder-2" name="files" type="file" multiple webkitdirectory>
+    </div>
+    <div class="block">
+
+
+        <form method="post" action="">
+            <p>OR
+                <br>
+
+                provide url to github repository</p>
+            Link to github repository: <input type="url" id="ajax_post_url" name="link"
+                                              placeholder="https://github.com/... /...zip"
+                                              pattern="https://github.com/.+.zip"
+                                              title="Only github links to zip are allowed"/>
+            <input id="btn_url" class="btn btn-primary" type="submit" value="Send location of zip to analyze"/>
+            <div id="spin" class="spinner-border" role="status" style="visibility: hidden">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </form>
+        <div id="error_url"></div>
+
+
         <p>OR
             <br>
 
-            provide url to github repository</p>
-        Link to github repository: <input type="url" id="ajax_post_url" name="link"
-                                          placeholder="https://github.com/... /...zip"
-                                          pattern="https://github.com/.+.zip"
-                                          title="Only github links to zip are allowed"/>
-        <input id="btn_url" class="btn btn-primary" type="submit" value="Send location of zip to analyze"/>
-          <div id="spin" class="spinner-border" role="status" style="visibility: hidden">
-  <span class="sr-only">Loading...</span>
+            select zip archive with source code</p>
+
+        <div class="file-loading">
+            <input id="input-folder-3" name="ziparchive" type="file" accept=".zip">
+        </div>
+
+
+    </div>
+    <div id="errorBlock" class="help-block"></div>
+
+
 </div>
-    </form>
-    <div id="error_url"></div>
-
-
-    <p>OR
-        <br>
-
-        select zip archive with source code</p>
-
-    <div class="file-loading">
-        <input id="input-folder-3" name="ziparchive" type="file" accept=".zip">
+<div class="approximateMatching">
+    <h1>Approximate matching</h1>
+      <div class="block">Choose type of approximate matching algorithm:
+        <input type="radio" id="algoPattern0" name="algoPattern" value="0" checked>
+        <label for="algoPattern0"> ThresholdAMatch</label>
+        <input type="radio" id="algoPattern1" name="algoPattern" value="1">
+        <label for="algoPattern1"> MaximumThresholdAMatch </label><br>
     </div>
 
 
+    <div class="file-loading">
+        <input id="input-folder-4" name="file" type="file">
+    </div>
+    <br>
+
+    <p class="formfield">
+        <label for="textarea">Pattern:</label>
+        <textarea id="textarea" rows="5" cols="100" required>write pattern</textarea>
+    </p>
+    <div>
+    </div>
 </div>
-<div id="errorBlock" class="help-block"></div>
+
 <script>
     $(document).ready(function () {
         $("#input-folder-2").fileinput({
@@ -113,8 +179,19 @@ make notion about real amount of java files
             showPreview: false,
             uploadUrl: "/analyze_files",
             uploadAsync: false,
-            timeout: 60000,
-            elErrorContainer: "#errorBlock"
+            timeout: 6000000,
+            elErrorContainer: "#errorBlock",
+            uploadExtraData: function () {
+                return {
+                    algoType: $('input[name="algo"]:checked').attr('value'),
+                    func: $('input[name="func"]:checked').attr('value'),
+                    match: $('input[name="match"]').attr('value'),
+                    mismatch: $('input[name="mismatch"]').attr('value'),
+                    gap: $('input[name="gap"]').attr('value'),
+                    percent: $('input[name="percent"]').attr('value')
+                };
+            }
+            //multiple: true
             //multiple: true
         }).on(
             'filebatchuploadsuccess', function (event, data) {
@@ -130,8 +207,18 @@ make notion about real amount of java files
             showPreview: false,
             uploadUrl: "/analyze_from_zip",
             uploadAsync: false,
-            timeout: 60000,
-            elErrorContainer: "#errorBlock"
+            timeout: 6000000,
+            elErrorContainer: "#errorBlock",
+            uploadExtraData: function () {
+                return {
+                    algoType: $('input[name="algo"]:checked').attr('value'),
+                    func: $('input[name="func"]:checked').attr('value'),
+                    match: $('input[name="match"]').attr('value'),
+                    mismatch: $('input[name="mismatch"]').attr('value'),
+                    gap: $('input[name="gap"]').attr('value'),
+                    percent: $('input[name="percent"]').attr('value')
+                };
+            }
             //multiple: true
         }).on(
             'filebatchuploadsuccess', function (event, data) {
@@ -142,7 +229,7 @@ make notion about real amount of java files
         $("#btn_url").click(function () {
 
             $("#btn_url").attr("disabled", true);
-            $('#spin').css('visibility','visible');
+            $('#spin').css('visibility', 'visible');
 
             $.ajax({
                 url: 'analyze_from_github_url',
@@ -153,13 +240,13 @@ make notion about real amount of java files
                     url: document.getElementById("ajax_post_url").value
                 }),
                 success: function (response) {
-                    $('#spin').css('visibility','hidden');
+                    $('#spin').css('visibility', 'hidden');
                     $("#btn_url").attr("disabled", false);
                     window.location.href = response.url;
                 },
                 error: function (response) {
                     console.log(response);
-                    $('#spin').css('visibility','hidden');
+                    $('#spin').css('visibility', 'hidden');
                     $("#btn_url").attr("disabled", false);
                     $('#errorBlock').html(response.error);
                     $('#errorBlock').show();
@@ -171,8 +258,54 @@ make notion about real amount of java files
         })
 
 
+        $("#input-folder-4").fileinput({
+            browseLabel: 'Select File with text',
+            uploadLabel: 'Analyze',
+            uploadTitle: 'Upload file to server and start analysis',
+            allowedPreviewTypes: null, // set to empty, null or false to disable preview for all types
+            showPreview: false,
+            uploadUrl: "/approximateMatching",
+            uploadAsync: false,
+            timeout: 6000000,
+            elErrorContainer: "#errorBlock",
+            uploadExtraData: function () {
+                return {
+                    pattern: $("#textarea").val(),
+                    patternAlgo: $('input[name="algoPattern"]:checked').attr('value'),
+                    func: $('input[name="func"]:checked').attr('value'),
+                    match: $('input[name="match"]').attr('value'),
+                    mismatch: $('input[name="mismatch"]').attr('value'),
+                    gap: $('input[name="gap"]').attr('value'),
+                    percent: $('input[name="percent"]').attr('value')
+                };
+            }
+            //multiple: true
+        }).on(
+            'filebatchuploadsuccess', function (event, data) {
+                console.log(event);
+                console.log(data);
+                window.location.href = data.response.url;
+            }
+        );
+
     });
 
+    $(document).ready(function () {
+        $("input[name=query]:radio").click(function () {
+            var inputValue = $(this).attr("value");
+            var targetBox = $("." + inputValue);
+            if (inputValue === "approximateMatching") {
+                $("." + "groupDuplicate").hide();
+                $("." + "approximateMatching").show()
+                //hide dupl
+            } else {
+                $("." + "approximateMatching").hide();
+                $("." + "groupDuplicate").show();
+            }
+            //console.log(targetBox);
+        });
+
+    });
 
 </script>
 

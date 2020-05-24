@@ -2,39 +2,13 @@ import json
 
 import networkx
 
-"""
- Example of data
- {
-    "digraph": [
- {
-   "vertexName": "Method public SortedDocValues select(final SortedSetDocValues values, final BitSet parentDocs, final DocIdSetIterator childDocs, int maxChildren) throws IOException  (MultiValueMode.java)",
-   "children": [
-     {
-       "name": "Method public BinaryDocValues select(final SortedBinaryDocValues values, final BytesRef missingValue)  (MultiValueMode.java)"
-     }
-   ],
-   "comment": "\n     * Return a {@link SortedDocValues} instance that can be used to sort root documents\n     * with this mode, the provided values and filters for root/inner documents.\n     *\n     * For every root document, the values of its inner documents will be aggregated.\n     *\n     * Allowed Modes: MIN, MAX\n     *\n     * NOTE: Calling the returned instance on docs that are not root docs is illegal\n     *       The returned instance can only be evaluate the current and upcoming docs\n     ",
-   "vertexLabel": "SortedDocValues select()"
- },
- {
-   "vertexName": "Method public String[] ignoreIndexSettings()  (RestoreSnapshotRequest.java)",
-   "children": [
-     {
-       "name": "Method public RestoreSnapshotRequest ignoreIndexSettings(List<String> ignoreIndexSettings)  (RestoreSnapshotRequest.java)"
-     }
-   ],
-   "comment": "\n     * Returns the list of index settings and index settings groups that shouldn't be restored from snapshot\n     ",
-   "vertexLabel": "String[] ignoreIndexSettings()"
- },
- ...
- """
-
 
 class AbstractJsonProcessor:
     def apply(self, filepath):
         pass
 
 
+# OUTDATED
 class JsonProcessor(AbstractJsonProcessor):
     """
     Parses to networkx graph json  with structure described above
@@ -69,3 +43,51 @@ class JsonProcessor(AbstractJsonProcessor):
             #     if not networkx.is_directed_acyclic_graph(comp):
             #         print('Component is circled')
             return directed_graph, components
+
+
+class JsonProcessorGroupDuplicate(AbstractJsonProcessor):
+    """
+       Parses to networkx graph json  with structure described above
+    """
+
+    def apply(self, filepath) -> (networkx.DiGraph, [networkx.DiGraph]):
+        with open(filepath, 'r') as f:
+            groups = json.load(f)
+            directed_graph = networkx.DiGraph()
+
+            trees = []
+
+            for group in groups:
+                vertices = group['vertices']
+                edges = group['edges']
+                tree = networkx.DiGraph()
+                for vertex in vertices:
+                    directed_graph.add_node(vertex['id'], name=vertex['signature'], text=vertex['body'])
+                    tree.add_node(vertex['id'], name=vertex['signature'], text=vertex['body'])
+                for edge in edges:
+                    tree.add_edge(edge['from'], edge['to'],
+                                  clone=(edge['cloneInTo']['startInclusive'], edge['cloneInTo']['endExclusive']))
+                    directed_graph.add_edge(edge['from'], edge['to'], clone=(
+                        edge['cloneInTo']['startInclusive'], edge['cloneInTo']['endExclusive']))
+                trees.append(tree)
+            trees.sort(key=len, reverse=True)
+            # print(trees[0].edges)
+            return directed_graph, trees
+
+
+class JsonProcessorPatternMatching(AbstractJsonProcessor):
+    """
+       Parses to pattern,text and list of positions
+    """
+
+    def apply(self, filepath):
+        with open(filepath, 'r') as f:
+            data = json.load(f)
+            text = data['text']
+            pattern = data['pattern']
+            clones = data['clones']
+            positions = list(map(lambda x: (int(x['startInclusive']), int(x["endExclusive"])), clones))
+            return pattern, text, positions
+
+
+# JsonProcessorGroupDuplicate().apply('/home/nikita/PycharmProjects/untitled1/output.json')

@@ -2,7 +2,7 @@ import json
 import os
 import re
 
-from viz_preprocessing.jsonProcessor import JsonProcessor
+from viz_preprocessing.jsonProcessor import JsonProcessor, JsonProcessorGroupDuplicate
 from viz_preprocessing.worddiff import replace_comment_stars, \
     markup_with_diff_mode
 
@@ -53,7 +53,8 @@ class BackendHandler:
         self.main_page_name = page_name
         self.working_file = working_file
         self.renderer = renderer
-        self.graph, self.strongly_connected_components = JsonProcessor().apply(working_file)
+        # TODO
+        self.graph, self.strongly_connected_components = JsonProcessorGroupDuplicate().apply(working_file)
         self.storage_modifier = StorageModifier(os.path.dirname(working_file))
 
     def save_page(self, page, data_name):
@@ -157,6 +158,7 @@ class BackendHandler:
 
 
 def extract_pretty_name(name: str, language='Java'):
+    return name
     try:
         # print(name)
         catch_source = r'\(\S+\.java\)'
