@@ -11,6 +11,7 @@
 
 ## Requirements
 For launch **JavaCloneD** you need to install docker and have browser.
+Note you need to build jar file from semiLocalLCS repo and place in JavaCloneD repo as runner.jar
 
 ## Launch
 1) <code> git clone https://github.com/NikitaMishin/JavaCloneD </code> 
