@@ -1,3 +1,8 @@
+## NOTE
+Due to large jar size runner.jar not presented here.
+In order to start you need clone https://github.com/NikitaMishin/SemiLocalLcs/ and build jar file with all dependencies and place it to this project with name runner.jar
+Image on docker hub a bit outdated.
+
 ## Overview
   <p>The Comment Clone Detector "JavaCloneD" finds and visualizes clones that contain in Javadoc comments.
         The tool finds exact and fuzzy clones. Clones split onto the groups and each group forms an acyclic-oriented
