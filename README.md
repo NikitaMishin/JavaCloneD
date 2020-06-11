@@ -1,7 +1,6 @@
 ## NOTE
 Due to large jar size runner.jar not presented here.
 In order to start you need clone https://github.com/NikitaMishin/SemiLocalLcs/ and build jar file with all dependencies and place it to this project with name runner.jar
-Image on docker hub a bit outdated.
 
 ## Overview
   <p>The Comment Clone Detector "JavaCloneD" finds and visualizes clones that contain in Javadoc comments.
@@ -21,10 +20,10 @@ Note you need to build jar file from semiLocalLCS repo and place in JavaCloneD r
 ## Launch
 1) <code> git clone https://github.com/NikitaMishin/JavaCloneD </code> 
 2) <code> cd JavaCloneD/ </code>
-3) <code> docker build -t  JavaCloneD:latest . </code>
-4) <code> docker run -it -p 5000:5000 JavaCloneD:latest </code> here first 5000 port on docker machine and second one container port 
+3) <code> docker build -t  javacloned:latest . </code>
+4) <code> docker run -it -p 5000:5000 javacloned:latest </code> here first 5000 port on docker machine and second one container port 
 5) visit <code> http://127.0.0.1:5000/home </code>
 
 If you don't want to clone repo you can get latest image from dockerhub
- 1) <code> docker pull murmulla/java_clone_d </code>
+ 1) <code> docker pull murmulla/javacloned </code>
  2) previous steps 4 and 5
